@@ -31,7 +31,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onEdit, onDelete })
 );
 
 const styles = StyleSheet.create({
-  text: { fontSize: 16 },
+  text: { fontSize: 16, fontFamily: 'ndot47' , color: 'white'},
   completed: { textDecorationLine: "line-through", color: "gray" },
   actions: { flexDirection: "row" },
 });
