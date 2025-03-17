@@ -5,7 +5,7 @@ let db;
 export const initDatabase = async () => {
   db = await openDatabaseAsync("tasks.db");
   await db.execAsync(
-    "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT, completed INTEGER);"
+    "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT, completed INTEGER, date TEXT);"
   );
 };
 
@@ -15,8 +15,9 @@ export const getTasks = async () => {
 
 export const addTask = async (text) => {
   if (!db) return null;
-  const { lastInsertRowId } = await db.runAsync("INSERT INTO tasks (text, completed) VALUES (?, ?);", [text, 0]);
-  return { id: lastInsertRowId, text, completed: 0 };
+  const datetime = new Date().toISOString();
+  const { lastInsertRowId } = await db.runAsync("INSERT INTO tasks (text, completed, datetime) VALUES (?, ?, ?);", [text, 0, datetime]);
+  return { id: lastInsertRowId, text, completed: 0, datetime };
 };
 
 export const updateTask = async (id, text) => {
