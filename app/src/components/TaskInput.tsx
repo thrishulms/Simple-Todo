@@ -17,7 +17,7 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAdd }) => {
         value={task}
         onChangeText={setTask}
       />
-      <Button mode="contained" onPress={() => { if (task.trim()) { onAdd(task); setTask(""); }}}>
+      <Button buttonColor="black" labelStyle={styles.button} mode="contained" onPress={() => { if (task.trim()) { onAdd(task); setTask(""); }}}>
         Add Task
       </Button>
     </>
@@ -25,7 +25,8 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAdd }) => {
 };
 
 const styles = StyleSheet.create({
-  input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 5, padding: 10, marginBottom: 10 },
+  input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 5, padding: 10, marginBottom: 10, fontFamily: 'ndot47', fontWeight: 'normal', color: '#FFFFFF' },
+  button: { fontFamily: 'ndot47', fontWeight: 'normal', color: '#FFFFFF' },
 });
 
 export default TaskInput;

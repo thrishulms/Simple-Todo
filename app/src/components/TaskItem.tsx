@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Button, Checkbox, Card } from "react-native-paper";
 import { Task } from "../database/db";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 interface TaskItemProps {
   task: Task;
@@ -11,19 +12,16 @@ interface TaskItemProps {
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onEdit, onDelete }) => (
-  <Card mode="elevated" style={styles.card}>
-    <Card.Content style={styles.content}>
-      <Checkbox
-        status={task.completed ? "checked" : "unchecked"}
-        onPress={() => onToggle(task.id, task.completed)}
-      />
-      <Text style={[styles.text, styles.generalFont, task.completed && styles.completed]}>{task.text}</Text>
-      <View style={styles.actions}>
-        <Button icon="pencil" mode="text" onPress={() => onEdit(task)}></Button>
-        <Button icon="delete" mode="text" onPress={() => onDelete(task.id)}></Button>
-      </View>
-    </Card.Content>
-  </Card>
+  <BouncyCheckbox
+    size={25}
+    fillColor="red"
+    unFillColor="#FFFFFF"
+    text={task.text}
+    iconStyle={{ borderColor: "white" }}
+    innerIconStyle={{ borderWidth: 2 }}
+    textStyle={{ fontFamily: "ndot47" }}
+    onPress={(isChecked: boolean) => { onToggle(task.id , true) }}
+  />
 );
 
 const styles = StyleSheet.create({
