@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList, TextInput, StyleSheet } from "react-native";
-import { Button, Dialog, Portal, Provider, Menu } from "react-native-paper";
+import { View, FlatList, TextInput, StyleSheet, Text } from "react-native";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { Button, Dialog, Portal, Provider } from "react-native-paper";
 import TaskItem from "../components/TaskItem";
 import TaskInput from "../components/TaskInput";
 import { initDatabase, getTasks, addTask, updateTask, toggleTask, deleteTask, Task } from "../database/db";
@@ -10,7 +11,6 @@ const HomeScreen: React.FC = () => {
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [editText, setEditText] = useState("");
   const [visible, setVisible] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
   const [filter, setFilter] = useState<"all" | "completed" | "pending">("pending");
 
   useEffect(() => {
@@ -21,6 +21,11 @@ const HomeScreen: React.FC = () => {
     };
     loadDb();
   }, []);
+
+  useEffect(() => {
+    // This effect will run whenever the filter state changes
+    setTasks((prevTasks) => getFilteredTasks(prevTasks));
+  }, [filter]);
 
   const handleAddTask = async (text: string) => {
     const newTask = await addTask(text);
@@ -44,7 +49,7 @@ const HomeScreen: React.FC = () => {
     setVisible(false);
   };
 
-  const getFilteredTasks = () => {
+  const getFilteredTasks = (tasks: Task[]) => {
     return tasks.filter((task) => 
       filter === "all" ? true : filter === "completed" ? task.completed : !task.completed
     );
@@ -53,18 +58,41 @@ const HomeScreen: React.FC = () => {
   return (
     <Provider>
         <View style={styles.container}>
-          <Menu
-            visible={menuVisible}
-            onDismiss={() => setMenuVisible(false)}
-            anchor={<Button mode="contained" onPress={() => setMenuVisible(true)}>Sort</Button>}
-          >
-            <Menu.Item onPress={() => setFilter("pending")} title="Pending Tasks" />
-            <Menu.Item onPress={() => setFilter("completed")} title="Completed Tasks" />
-            <Menu.Item onPress={() => setFilter("all")} title="All Tasks" />
-          </Menu>
+          <View style={styles.filterContainer}>
+            <BouncyCheckbox
+              size={25}
+              fillColor="red"
+              unFillColor="#FFFFFF"
+              text="Pending"
+              iconStyle={{ borderColor: "red" }}
+              innerIconStyle={{ borderWidth: 2 }}
+              textStyle={{ fontFamily: "ndot47" }}
+              onPress={(isChecked: boolean) => { setFilter("pending") }}
+            />
+            <BouncyCheckbox
+              size={25}
+              fillColor="red"
+              unFillColor="#FFFFFF"
+              text="Completed"
+              iconStyle={{ borderColor: "blue" }}
+              innerIconStyle={{ borderWidth: 2 }}
+              textStyle={{ fontFamily: "ndot47" }}
+              onPress={(isChecked: boolean) => {  setFilter("completed") }}
+            />
+            <BouncyCheckbox
+              size={25}
+              fillColor="red"
+              unFillColor="#FFFFFF"
+              text="All"
+              iconStyle={{ borderColor: "white" }}
+              innerIconStyle={{ borderWidth: 2 }}
+              textStyle={{ fontFamily: "ndot47" }}
+              onPress={(isChecked: boolean) => { console.log('all' + isChecked) }}
+            />
+          </View>
 
           <FlatList
-            data={getFilteredTasks()}
+            data={getFilteredTasks(tasks)}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <TaskItem task={item} onToggle={handleToggleTask} onEdit={(task) => { setEditTask(task); setEditText(task.text); setVisible(true); }} onDelete={handleDeleteTask} />
@@ -78,7 +106,8 @@ const HomeScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 2, padding: 20 },
+  container: { flex: 2, padding: 20 , fontFamily: 'ndot47' },
+  filterContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
 });
 
 export default HomeScreen;
