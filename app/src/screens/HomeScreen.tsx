@@ -64,14 +64,19 @@ const HomeScreen: React.FC = () => {
 
   const getTasksForToday = (tasks: Task[]) => {
     const today = new Date().toDateString();
-    console.log(tasks);
-    return tasks.filter(task => new Date(task.date).toDateString() === today);
+    var incompleteTasks = tasks.filter((task) => 
+      filter === "all" ? true : filter === "completed" ? task.completed : !task.completed
+    )
+    return incompleteTasks.filter(task => new Date(task.date).toDateString() === today);
   };
 
   const getTasksForYesterday = (tasks: Task[]) => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    return tasks.filter(task => new Date(task.date).toDateString() === yesterday.toDateString());
+    var incompleteTasks = tasks.filter((task) => 
+      filter === "all" ? true : filter === "completed" ? task.completed : !task.completed
+    )
+    return incompleteTasks.filter(task => new Date(task.date).toDateString() === yesterday.toDateString());
   };
 
   
