@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList, StyleSheet, Text } from "react-native";
-import { Button, Dialog, Portal, Provider, Tab, TabView } from "react-native-paper";
+import { View, FlatList, TextInput, StyleSheet, Text } from "react-native";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { Button, Dialog, Portal, Provider } from "react-native-paper";
 import TaskItem from "../components/TaskItem";
 import TaskInput from "../components/TaskInput";
 import { initDatabase, getTasks, addTask, updateTask, toggleTask, deleteTask, Task } from "../database/db";
@@ -10,12 +11,7 @@ const HomeScreen: React.FC = () => {
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [editText, setEditText] = useState("");
   const [visible, setVisible] = useState(false);
-  const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    { key: 'pending', title: 'Pending' },
-    { key: 'completed', title: 'Completed' },
-    { key: 'all', title: 'All' },
-  ]);
+  const [filter, setFilter] = useState<"all" | "completed" | "pending">("pending");
 
   useEffect(() => {
     const loadDb = async () => {
@@ -25,6 +21,11 @@ const HomeScreen: React.FC = () => {
     };
     loadDb();
   }, []);
+
+  useEffect(() => {
+    // This effect will run whenever the filter state changes
+    setTasks((prevTasks) => getFilteredTasks(prevTasks));
+  }, [filter]);
 
   const handleAddTask = async (text: string) => {
     const newTask = await addTask(text);
@@ -48,52 +49,65 @@ const HomeScreen: React.FC = () => {
     setVisible(false);
   };
 
-  const getFilteredTasks = (tasks: Task[], filter: "all" | "completed" | "pending") => {
+  const getFilteredTasks = (tasks: Task[]) => {
     return tasks.filter((task) => 
       filter === "all" ? true : filter === "completed" ? task.completed : !task.completed
     );
   };
 
-  const renderScene = ({ route }) => {
-    switch (route.key) {
-      case 'pending':
-        return <TaskList tasks={getFilteredTasks(tasks, "pending")} onToggle={handleToggleTask} onEdit={setEditTask} onDelete={handleDeleteTask} />;
-      case 'completed':
-        return <TaskList tasks={getFilteredTasks(tasks, "completed")} onToggle={handleToggleTask} onEdit={setEditTask} onDelete={handleDeleteTask} />;
-      case 'all':
-        return <TaskList tasks={getFilteredTasks(tasks, "all")} onToggle={handleToggleTask} onEdit={setEditTask} onDelete={handleDeleteTask} />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <Provider>
-      <View style={styles.container}>
-        <TabView
-          navigationState={{ index, routes }}
-          renderScene={renderScene}
-          onIndexChange={setIndex}
-          initialLayout={{ width: 300 }}
-        />
-        <TaskInput onAdd={handleAddTask} />
-      </View>
+        <View style={styles.container}>
+          <View style={styles.filterContainer}>
+            <BouncyCheckbox
+              size={25}
+              fillColor="red"
+              unFillColor="#FFFFFF"
+              text="Pending"
+              iconStyle={{ borderColor: "red" }}
+              innerIconStyle={{ borderWidth: 2 }}
+              textStyle={{ fontFamily: "ndot47" }}
+              onPress={(isChecked: boolean) => { setFilter("pending") }}
+            />
+            <BouncyCheckbox
+              size={25}
+              fillColor="red"
+              unFillColor="#FFFFFF"
+              text="Completed"
+              iconStyle={{ borderColor: "blue" }}
+              innerIconStyle={{ borderWidth: 2 }}
+              textStyle={{ fontFamily: "ndot47" }}
+              onPress={(isChecked: boolean) => {  setFilter("completed") }}
+            />
+            <BouncyCheckbox
+              size={25}
+              fillColor="red"
+              unFillColor="#FFFFFF"
+              text="All"
+              iconStyle={{ borderColor: "white" }}
+              innerIconStyle={{ borderWidth: 2 }}
+              textStyle={{ fontFamily: "ndot47" }}
+              onPress={(isChecked: boolean) => { console.log('all' + isChecked) }}
+            />
+          </View>
+
+          <FlatList
+            data={getFilteredTasks(tasks)}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TaskItem task={item} onToggle={handleToggleTask} onEdit={(task) => { setEditTask(task); setEditText(task.text); setVisible(true); }} onDelete={handleDeleteTask} />
+            )}
+          />
+
+          <TaskInput onAdd={handleAddTask} />
+        </View>
     </Provider>
   );
 };
 
-const TaskList = ({ tasks, onToggle, onEdit, onDelete }) => (
-  <FlatList
-    data={tasks}
-    keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => (
-      <TaskItem task={item} onToggle={onToggle} onEdit={(task) => { onEdit(task); setEditText(task.text); setVisible(true); }} onDelete={onDelete} />
-    )}
-  />
-);
-
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  container: { flex: 2, padding: 20 , fontFamily: 'ndot47' },
+  filterContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
 });
 
 export default HomeScreen;
