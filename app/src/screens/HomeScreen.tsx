@@ -5,7 +5,7 @@ import { Button, Dialog, Portal, Provider } from "react-native-paper";
 import TaskItem from "../components/TaskItem";
 import TaskInput from "../components/TaskInput";
 import { initDatabase, getTasks, addTask, updateTask, toggleTask, deleteTask, Task } from "../database/db";
-import { TabView, SceneMap } from 'react-native-tab-view';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 
 
 const HomeScreen: React.FC = () => {
@@ -109,11 +109,15 @@ const HomeScreen: React.FC = () => {
     <Provider>
       <View style={styles.container}>
       <TabView
+        lazy
         navigationState={{ index, routes }}
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={{ width: 300}}
+        pagerStyle={styles.tabbody}
+        renderTabBar={props => <TabBar {...props} style={styles.tab}/>}
       />
+
         {/* <View style={styles.filterContainer}>
           <BouncyCheckbox
             size={25}
@@ -164,6 +168,8 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, fontFamily: 'ndot47' },
   filterContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  tabbody : { backgroundColor: '#000000', fontFamily: 'ndot47'},
+  tab : { backgroundColor: '#252525', fontFamily: 'ndot47'}
 });
 
 export default HomeScreen;

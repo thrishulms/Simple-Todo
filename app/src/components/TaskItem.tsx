@@ -12,30 +12,36 @@ interface TaskItemProps {
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onEdit, onDelete }) => (
-  <BouncyCheckbox
-    size={25}
-    fillColor="red"
-    unFillColor="#FFFFFF"
-    text={task.text}
-    iconStyle={{ borderColor: "white" }}
-    innerIconStyle={{ borderWidth: 2 }}
-    textStyle={{ fontFamily: "ndot47" }}
-    onPress={(isChecked: boolean) => { onToggle(task.id , true) }}
-  />
+  <Card style={styles.card}>
+    <View style={styles.content}>
+      <BouncyCheckbox
+        size={25}
+        fillColor="red"
+        unFillColor="#FFFFFF"
+        text={task.text}
+        iconStyle={{ borderColor: "white" }}
+        innerIconStyle={{ borderWidth: 2 }}
+        textStyle={{ fontFamily: "ndot47" }}
+        onPress={(isChecked: boolean) => { onToggle(task.id , true) }}
+      />
+    </View>
+  </Card>
 );
 
 const styles = StyleSheet.create({
   card: {
+    padding: 10,
     marginVertical: 8,
     marginHorizontal: 10,
     borderRadius: 8,
     borderWidth: 1, // Thin border
-    borderColor: "#BB86FC", // Light purple border (adjust to theme)
+    borderColor: "#252525", // Light purple border (adjust to theme)
     elevation: 4, // Android shadow
     shadowColor: "#000", // iOS shadow
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
+    backgroundColor: "#252525", // Card background color
   },
   content: {
     flexDirection: "row",
