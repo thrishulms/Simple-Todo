@@ -7,9 +7,9 @@ import TaskInput from "../components/TaskInput";
 import { initDatabase, getTasks, addTask, updateTask, toggleTask, deleteTask, Task } from "../database/db";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 
-
 const HomeScreen: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [currentTasks, setCurrentTasks] = useState<Task[]>([]);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [editText, setEditText] = useState("");
   const [visible, setVisible] = useState(false);
@@ -19,13 +19,13 @@ const HomeScreen: React.FC = () => {
     { key: 'today', title: 'Today' },
     { key: 'yesterday', title: 'Yesterday' },
   ]);
-  var defaultRoute = 'today';
 
   useEffect(() => {
     const loadDb = async () => {
       await initDatabase();
       const loadedTasks = await getTasks();
       setTasks(loadedTasks);
+      setCurrentTasks(getTasksForToday(loadedTasks)); // Initialize currentTasks for today
     };
     loadDb();
   }, []);
@@ -34,25 +34,59 @@ const HomeScreen: React.FC = () => {
     setTasks((prevTasks) => getFilteredTasks(prevTasks));
   }, [filter]);
 
+  useEffect(() => {
+    if (index === 0) {
+      setCurrentTasks(getTasksForToday(tasks));
+    } else if (index === 1) {
+      setCurrentTasks(getTasksForYesterday(tasks));
+    }
+  }, [index, tasks]);
+
   const handleAddTask = async (text: string) => {
     const newTask = await addTask(text);
-    if (newTask) setTasks([...tasks, newTask]);
+    if (newTask) {
+      const updatedTasks = [...tasks, newTask];
+      setTasks(updatedTasks);
+      if (index === 0) {
+        setCurrentTasks(getTasksForToday(updatedTasks)); // Update currentTasks for today
+      } else if (index === 1) {
+        setCurrentTasks(getTasksForYesterday(updatedTasks)); // Update currentTasks for yesterday
+      }
+    }
   };
 
   const handleToggleTask = async (id: number, completed: boolean) => {
     await toggleTask(id, completed);
-    setTasks(tasks.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task)));
+    const updatedTasks = tasks.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task));
+    setTasks(updatedTasks);
+    if (index === 0) {
+      setCurrentTasks(getTasksForToday(updatedTasks)); // Update currentTasks for today
+    } else if (index === 1) {
+      setCurrentTasks(getTasksForYesterday(updatedTasks)); // Update currentTasks for yesterday
+    }
   };
 
   const handleDeleteTask = async (id: number) => {
     await deleteTask(id);
-    setTasks(tasks.filter((task) => task.id !== id));
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
+    if (index === 0) {
+      setCurrentTasks(getTasksForToday(updatedTasks)); // Update currentTasks for today
+    } else if (index === 1) {
+      setCurrentTasks(getTasksForYesterday(updatedTasks)); // Update currentTasks for yesterday
+    }
   };
 
   const handleEditTask = async () => {
     if (!editTask) return;
     await updateTask(editTask.id, editText);
-    setTasks(tasks.map((task) => (task.id === editTask.id ? { ...task, text: editText } : task)));
+    const updatedTasks = tasks.map((task) => (task.id === editTask.id ? { ...task, text: editText } : task));
+    setTasks(updatedTasks);
+    if (index === 0) {
+      setCurrentTasks(getTasksForToday(updatedTasks)); // Update currentTasks for today
+    } else if (index === 1) {
+      setCurrentTasks(getTasksForYesterday(updatedTasks)); // Update currentTasks for yesterday
+    }
     setVisible(false);
   };
 
@@ -79,20 +113,19 @@ const HomeScreen: React.FC = () => {
     return incompleteTasks.filter(task => new Date(task.date).toDateString() === yesterday.toDateString());
   };
 
-  
   const TodayRoute = () => (
     <FlatList
-      data={getTasksForToday(tasks)}
+      data={currentTasks}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
         <TaskItem task={item} onToggle={handleToggleTask} onEdit={(task) => { setEditTask(task); setEditText(task.text); setVisible(true); }} onDelete={handleDeleteTask} />
       )}
     />
   );
-  
+
   const YesterdayRoute = () => (
     <FlatList
-      data={getTasksForYesterday(tasks)}
+      data={currentTasks}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
         <TaskItem task={item} onToggle={handleToggleTask} onEdit={(task) => { setEditTask(task); setEditText(task.text); setVisible(true); }} onDelete={handleDeleteTask} />
@@ -117,49 +150,7 @@ const HomeScreen: React.FC = () => {
         pagerStyle={styles.tabbody}
         renderTabBar={props => <TabBar {...props} style={styles.tab}/>}
       />
-
-        {/* <View style={styles.filterContainer}>
-          <BouncyCheckbox
-            size={25}
-            fillColor="red"
-            unFillColor="#FFFFFF"
-            text="Pending"
-            iconStyle={{ borderColor: "red" }}
-            innerIconStyle={{ borderWidth: 2 }}
-            textStyle={{ fontFamily: "ndot47" }}
-            onPress={(isChecked: boolean) => { setFilter("pending") }}
-          />
-          <BouncyCheckbox
-            size={25}
-            fillColor="red"
-            unFillColor="#FFFFFF"
-            text="Completed"
-            iconStyle={{ borderColor: "blue" }}
-            innerIconStyle={{ borderWidth: 2 }}
-            textStyle={{ fontFamily: "ndot47" }}
-            onPress={(isChecked: boolean) => { setFilter("completed") }}
-          />
-          <BouncyCheckbox
-            size={25}
-            fillColor="red"
-            unFillColor="#FFFFFF"
-            text="All"
-            iconStyle={{ borderColor: "white" }}
-            innerIconStyle={{ borderWidth: 2 }}
-            textStyle={{ fontFamily: "ndot47" }}
-            onPress={(isChecked: boolean) => { console.log('all' + isChecked) }}
-          />
-        </View> */}
-{/*         
-        <FlatList
-            data={getFilteredTasks(tasks)}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <TaskItem task={item} onToggle={handleToggleTask} onEdit={(task) => { setEditTask(task); setEditText(task.text); setVisible(true); }} onDelete={handleDeleteTask} />
-            )}
-          /> */}
-
-        <TaskInput onAdd={handleAddTask} />
+      <TaskInput onAdd={handleAddTask} />
       </View>
     </Provider>
   );
