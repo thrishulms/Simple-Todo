@@ -148,7 +148,7 @@ const HomeScreen: React.FC = () => {
         onIndexChange={setIndex}
         initialLayout={{ width: 300}}
         pagerStyle={styles.tabbody}
-        renderTabBar={props => <TabBar {...props} style={styles.tab}/>}
+        renderTabBar={props => <TabBar {...props} activeColor={'#FFF'} inactiveColor={'grey'} style={styles.tab}/>}
       />
       <TaskInput onAdd={handleAddTask} />
       </View>
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, fontFamily: 'ndot47' },
   filterContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   tabbody : { backgroundColor: '#000000', fontFamily: 'ndot47'},
-  tab : { backgroundColor: '#252525', fontFamily: 'ndot47'}
+  tab : { backgroundColor: 'black', fontFamily: 'ndot47'}
 });
 
 export default HomeScreen;
