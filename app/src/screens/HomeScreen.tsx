@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList, StyleSheet } from "react-native";
+import { View, FlatList, StyleSheet, RefreshControl } from "react-native";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { Button, Dialog, Portal, Provider } from "react-native-paper";
 import TaskItem from "../components/TaskItem";
@@ -19,6 +19,7 @@ const HomeScreen: React.FC = () => {
     { key: 'today', title: 'Today' },
     { key: 'yesterday', title: 'Yesterday' },
   ]);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     const loadDb = async () => {
@@ -113,6 +114,18 @@ const HomeScreen: React.FC = () => {
     return incompleteTasks.filter(task => new Date(task.date).toDateString() === yesterday.toDateString());
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    const loadedTasks = await getTasks();
+    setTasks(loadedTasks);
+    if (index === 0) {
+      setCurrentTasks(getTasksForToday(loadedTasks));
+    } else if (index === 1) {
+      setCurrentTasks(getTasksForYesterday(loadedTasks));
+    }
+    setRefreshing(false);
+  };
+
   const TodayRoute = () => (
     <FlatList
       data={currentTasks}
@@ -120,6 +133,9 @@ const HomeScreen: React.FC = () => {
       renderItem={({ item }) => (
         <TaskItem task={item} onToggle={handleToggleTask} onEdit={(task) => { setEditTask(task); setEditText(task.text); setVisible(true); }} onDelete={handleDeleteTask} />
       )}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     />
   );
 
@@ -130,6 +146,9 @@ const HomeScreen: React.FC = () => {
       renderItem={({ item }) => (
         <TaskItem task={item} onToggle={handleToggleTask} onEdit={(task) => { setEditTask(task); setEditText(task.text); setVisible(true); }} onDelete={handleDeleteTask} />
       )}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     />
   );
 
