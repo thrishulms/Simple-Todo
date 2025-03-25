@@ -16,8 +16,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onEdit, onDelete })
     <View style={styles.content}>
       <BouncyCheckbox
         size={25}
-        fillColor="red"
-        unFillColor="#FFFFFF"
+        fillColor="white"
+        unFillColor="black"
         text={task.text}
         iconStyle={{ borderColor: "white" }}
         innerIconStyle={{ borderWidth: 2 }}
@@ -35,13 +35,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     borderRadius: 8,
     borderWidth: 1, // Thin border
-    borderColor: "#252525", // Light purple border (adjust to theme)
+    borderColor: "#232229", // Light purple border (adjust to theme)
     elevation: 4, // Android shadow
     shadowColor: "#000", // iOS shadow
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    backgroundColor: "#252525", // Card background color
+    backgroundColor: "#232229", // Card background color
   },
   content: {
     flexDirection: "row",
